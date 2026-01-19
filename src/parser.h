@@ -3,13 +3,13 @@
 
 #include "lexer.h"
 
-static int CurTok;
+int CurTok;
 static int getNextToken() {
 	return CurTok = gettok();
 }
 
-ASTNode* parse_expression() {
-	ASTNode* node = NULL;
+ASTNode *parse_expression() {
+	ASTNode *node = NULL;
 
 	switch (CurTok) {
 		case tok_inc: case tok_dec:
@@ -20,20 +20,22 @@ ASTNode* parse_expression() {
 			return node;
 		case tok_lpo:
 			getNextToken();
-			node = create_node(NODE_LOOP, tok_lpo);
+			node = create_node(NODE_LOOP, 0);
 
 			while (CurTok != tok_lpc && CurTok != tok_eof) {
-				ASTNode* child = parse_expression();
+				ASTNode *child = parse_expression();
 				if (child) {
-					add_to_loop(node, child);
+					add_child(&node->loop_body, child);
 				}
 			}
 
-			if (CurTok != tok_lpc) {
-				fprintf(stderr, "Ошибка: ожидалась ']' \n");
+			if (CurTok == tok_lpc) {
+				getNextToken();
+			} else {
+				fprintf(stderr, "Error: expected ']' (unclosed loop)\n");
+				exit(1);
 			}
 
-			getNextToken();
 			return node;
 
 		default:
@@ -42,14 +44,14 @@ ASTNode* parse_expression() {
 	}
 }
 
-ASTNode* parse_program() {
-	ASTNode* root = create_node(NODE_LOOP, 'R');
+ASTNode *parse_program() {
+	ASTNode *root = create_node(NODE_LOOP, 0);
 	getNextToken();
 
 	while (CurTok != tok_eof) {
-		ASTNode* node = parse_expression();
+		ASTNode *node = parse_expression();
 		if (node) {
-			add_to_loop(root, node);
+			add_child(&root->loop_body, node);
 		}
 	}
 	return root;

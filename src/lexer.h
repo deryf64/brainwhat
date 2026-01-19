@@ -48,4 +48,6 @@ static int gettok() {
 	return gettok();
 }
 
+extern int CurTok;
+
 #endif
