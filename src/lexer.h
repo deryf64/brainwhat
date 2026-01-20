@@ -14,6 +14,8 @@ enum Token {
 	tok_lpc = ']',
 
 	tok_szr = 'Z',
+	tok_mvr = '}',
+	tok_mvl = '{',
 };
 
 static int gettok() {
@@ -41,6 +43,7 @@ static int gettok() {
 	    LastChar == '>' || LastChar == '<' ||
 	    LastChar == '.' || LastChar == ',' ||
 	    LastChar == '[' || LastChar == ']' ||
+	    LastChar == '}' || LastChar == '{' ||
 	    LastChar == 'Z') {
 		int ThisChar = LastChar;
 		LastChar = getchar();

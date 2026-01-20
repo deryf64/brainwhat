@@ -32,6 +32,8 @@ void codegen(ASTNode* node, LLVMBuilderRef builder, LLVMModuleRef module) {
 	LLVMTypeRef i8  = LLVMInt8Type();
 	LLVMTypeRef i32 = LLVMInt32Type();
 
+	if (node->count == 0) return;
+
 	if (node->type == NODE_COMMAND) {
 		LLVMValueRef index = LLVMBuildLoad2(builder, i32, ptr, "ptr_load");
 
@@ -76,17 +78,52 @@ void codegen(ASTNode* node, LLVMBuilderRef builder, LLVMModuleRef module) {
 				LLVMValueRef getchar_fn = get_or_create_getchar(module);
 				LLVMTypeRef ft = LLVMFunctionType(i32, NULL, 0, 0);
 
-				LLVMValueRef input =
-					LLVMBuildCall2(builder, ft, getchar_fn, NULL, 0, "input");
-
-				LLVMValueRef input_i8 =
-					LLVMBuildTrunc(builder, input, i8, "input_i8");
+				LLVMValueRef input = LLVMBuildCall2(builder, ft, getchar_fn, NULL, 0, "input");
+				LLVMValueRef input_i8 = LLVMBuildTrunc(builder, input, i8, "input_i8");
 
 				LLVMBuildStore(builder, input_i8, cell);
 				break;
 			}
 			case 'Z': {
 				LLVMBuildStore(builder, LLVMConstInt(i8, 0, 0), cell);
+				break;
+			}
+			case '}': {
+				LLVMValueRef index = LLVMBuildLoad2(builder, i32, ptr, "ptr_load");
+
+				LLVMValueRef cur_indices[2] = { LLVMConstInt(i32, 0, 0), index };
+				LLVMValueRef cur_cell = LLVMBuildGEP2(builder, LLVMArrayType(i8, 30000), tape, cur_indices, 2, "cur_cell");
+				LLVMValueRef val = LLVMBuildLoad2(builder, i8, cur_cell, "val");
+
+				LLVMValueRef offset = LLVMConstInt(i32, node->count, 0);
+				LLVMValueRef target_idx = LLVMBuildAdd(builder, index, offset, "target_idx");
+				LLVMValueRef target_indices[2] = { LLVMConstInt(i32, 0, 0), target_idx };
+				LLVMValueRef target_cell = LLVMBuildGEP2(builder, LLVMArrayType(i8, 30000), tape, target_indices, 2, "target_cell");
+
+				LLVMValueRef old_target = LLVMBuildLoad2(builder, i8, target_cell, "old");
+				LLVMValueRef new_target = LLVMBuildAdd(builder, old_target, val, "new");
+				LLVMBuildStore(builder, new_target, target_cell);
+
+				LLVMBuildStore(builder, LLVMConstInt(i8, 0, 0), cur_cell);
+				break;
+			}
+			case '{': {
+				LLVMValueRef index = LLVMBuildLoad2(builder, i32, ptr, "ptr_load");
+
+				LLVMValueRef cur_indices[2] = { LLVMConstInt(i32, 0, 0), index };
+				LLVMValueRef cur_cell = LLVMBuildGEP2(builder, LLVMArrayType(i8, 30000), tape, cur_indices, 2, "cur_cell");
+				LLVMValueRef val = LLVMBuildLoad2(builder, i8, cur_cell, "val");
+
+				LLVMValueRef offset = LLVMConstInt(i32, - (int64_t)node->count, 1);
+				LLVMValueRef target_idx = LLVMBuildAdd(builder, index, offset, "target_idx");
+				LLVMValueRef target_indices[2] = { LLVMConstInt(i32, 0, 0), target_idx };
+				LLVMValueRef target_cell = LLVMBuildGEP2(builder, LLVMArrayType(i8, 30000), tape, target_indices, 2, "target_cell");
+
+				LLVMValueRef old_target = LLVMBuildLoad2(builder, i8, target_cell, "old");
+				LLVMValueRef new_target = LLVMBuildAdd(builder, old_target, val, "new");
+				LLVMBuildStore(builder, new_target, target_cell);
+
+				LLVMBuildStore(builder, LLVMConstInt(i8, 0, 0), cur_cell);
 				break;
 			}
 			default:
