@@ -36,6 +36,21 @@ ASTNode *parse_expression() {
 				exit(1);
 			}
 
+			// [+] [-]
+			if (node->loop_body.size == 1) {
+				ASTNode *child = node->loop_body.children[0];
+				if (child->type == NODE_COMMAND) {
+					if (child->token == '+' || child->token == '-') {
+						free_ast(child);
+						node->type = NODE_COMMAND;
+						node->token = 'Z';
+						node->loop_body.children = NULL;
+						node->loop_body.size = 0;
+						node->loop_body.capacity = 0;
+					}
+				}
+			}
+
 			return node;
 
 		default:

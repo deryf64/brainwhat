@@ -85,6 +85,10 @@ void codegen(ASTNode* node, LLVMBuilderRef builder, LLVMModuleRef module) {
 			LLVMBuildStore(builder, input_i8, cell);
 			break;
 		}
+		case 'Z': {
+			LLVMBuildStore(builder, LLVMConstInt(i8, 0, 0), cell);
+			break;
+		}
 		default:
 			break;
 		}
