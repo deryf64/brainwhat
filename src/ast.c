@@ -4,6 +4,7 @@ ASTNode* create_node(NodeType type, int token) {
 	ASTNode *node = calloc(1, sizeof(ASTNode));
 	if (!node) return NULL;
 	node->type = type;
+	node->count = 1;
 	node->token = token;
 	node->loop_body.children = NULL;
 	node->loop_body.size = 0;

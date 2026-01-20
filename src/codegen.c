@@ -42,55 +42,55 @@ void codegen(ASTNode* node, LLVMBuilderRef builder, LLVMModuleRef module) {
 
 		switch (node->token) {
 			case '+': {
-			LLVMValueRef inc = LLVMBuildAdd(builder, val, LLVMConstInt(i8, node->count, 0), "inc");
-			LLVMBuildStore(builder, inc, cell);
-			break;
-		}
-		case '-': {
-			LLVMValueRef dec = LLVMBuildSub(builder, val, LLVMConstInt(i8, node->count, 0), "dec");
-			LLVMBuildStore(builder, dec, cell);
-			break;
-		}
-		case '>': {
-			LLVMValueRef next = LLVMBuildAdd(builder, index, LLVMConstInt(i32, node->count, 0), "ptr_inc");
-			LLVMBuildStore(builder, next, ptr);
-			break;
-		}
-		case '<': {
-			LLVMValueRef prev = LLVMBuildSub(builder, index, LLVMConstInt(i32, node->count, 0), "ptr_dec");
-			LLVMBuildStore(builder, prev, ptr);
-			break;
-		}
-		case '.': {
-			LLVMValueRef putchar_fn = get_or_create_putchar(module);
+				LLVMValueRef inc = LLVMBuildAdd(builder, val, LLVMConstInt(i8, node->count, 0), "inc");
+				LLVMBuildStore(builder, inc, cell);
+				break;
+			}
+			case '-': {
+				LLVMValueRef dec = LLVMBuildSub(builder, val, LLVMConstInt(i8, node->count, 0), "dec");
+				LLVMBuildStore(builder, dec, cell);
+				break;
+			}
+			case '>': {
+				LLVMValueRef next = LLVMBuildAdd(builder, index, LLVMConstInt(i32, node->count, 0), "ptr_inc");
+				LLVMBuildStore(builder, next, ptr);
+				break;
+			}
+			case '<': {
+				LLVMValueRef prev = LLVMBuildSub(builder, index, LLVMConstInt(i32, node->count, 0), "ptr_dec");
+				LLVMBuildStore(builder, prev, ptr);
+				break;
+			}
+			case '.': {
+				LLVMValueRef putchar_fn = get_or_create_putchar(module);
 
-			LLVMValueRef v32 = LLVMBuildZExt(builder, val, i32, "char_to_int");
+				LLVMValueRef v32 = LLVMBuildZExt(builder, val, i32, "char_to_int");
 
-			LLVMValueRef args[] = { v32 };
-			LLVMTypeRef ft = LLVMFunctionType(i32, &i32, 1, 0);
+				LLVMValueRef args[] = { v32 };
+				LLVMTypeRef ft = LLVMFunctionType(i32, &i32, 1, 0);
 
-			LLVMBuildCall2(builder, ft, putchar_fn, args, 1, "");
-			break;
-		}
-		case ',': {
-			LLVMValueRef getchar_fn = get_or_create_getchar(module);
-			LLVMTypeRef ft = LLVMFunctionType(i32, NULL, 0, 0);
+				LLVMBuildCall2(builder, ft, putchar_fn, args, 1, "");
+				break;
+			}
+			case ',': {
+				LLVMValueRef getchar_fn = get_or_create_getchar(module);
+				LLVMTypeRef ft = LLVMFunctionType(i32, NULL, 0, 0);
 
-			LLVMValueRef input =
-				LLVMBuildCall2(builder, ft, getchar_fn, NULL, 0, "input");
+				LLVMValueRef input =
+					LLVMBuildCall2(builder, ft, getchar_fn, NULL, 0, "input");
 
-			LLVMValueRef input_i8 =
-				LLVMBuildTrunc(builder, input, i8, "input_i8");
+				LLVMValueRef input_i8 =
+					LLVMBuildTrunc(builder, input, i8, "input_i8");
 
-			LLVMBuildStore(builder, input_i8, cell);
-			break;
-		}
-		case 'Z': {
-			LLVMBuildStore(builder, LLVMConstInt(i8, 0, 0), cell);
-			break;
-		}
-		default:
-			break;
+				LLVMBuildStore(builder, input_i8, cell);
+				break;
+			}
+			case 'Z': {
+				LLVMBuildStore(builder, LLVMConstInt(i8, 0, 0), cell);
+				break;
+			}
+			default:
+				break;
 		}
 	}
 	else if (node->type == NODE_LOOP) {
