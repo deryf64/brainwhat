@@ -20,6 +20,7 @@ typedef struct {
 struct ASTNode {
 	NodeType type;
 	int token;
+	size_t count;
 	NodeList loop_body;
 };
 

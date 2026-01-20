@@ -16,7 +16,26 @@ ASTNode *parse_expression() {
 		case tok_rgt: case tok_lft:
 		case tok_ech: case tok_get:
 			node = create_node(NODE_COMMAND, CurTok);
+			int current = CurTok;
+			int count = 1;
 			getNextToken();
+
+			while (CurTok == current) {
+				count++;
+				getNextToken();
+			}
+
+			if ((current == '+' && CurTok == '-') ||
+			    (current == '-' && CurTok == '+') ||
+			    (current == '>' && CurTok == '<') ||
+			    (current == '<' && CurTok == '>')) {
+				getNextToken();
+				return NULL;
+			}
+
+			node->token = current;
+			node->count = count;
+
 			return node;
 		case tok_lpo:
 			getNextToken();

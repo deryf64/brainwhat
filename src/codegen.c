@@ -42,22 +42,22 @@ void codegen(ASTNode* node, LLVMBuilderRef builder, LLVMModuleRef module) {
 
 		switch (node->token) {
 			case '+': {
-			LLVMValueRef inc = LLVMBuildAdd(builder, val, LLVMConstInt(i8, 1, 0), "inc");
+			LLVMValueRef inc = LLVMBuildAdd(builder, val, LLVMConstInt(i8, node->count, 0), "inc");
 			LLVMBuildStore(builder, inc, cell);
 			break;
 		}
 		case '-': {
-			LLVMValueRef dec = LLVMBuildSub(builder, val, LLVMConstInt(i8, 1, 0), "dec");
+			LLVMValueRef dec = LLVMBuildSub(builder, val, LLVMConstInt(i8, node->count, 0), "dec");
 			LLVMBuildStore(builder, dec, cell);
 			break;
 		}
 		case '>': {
-			LLVMValueRef next = LLVMBuildAdd(builder, index, LLVMConstInt(i32, 1, 0), "ptr_inc");
+			LLVMValueRef next = LLVMBuildAdd(builder, index, LLVMConstInt(i32, node->count, 0), "ptr_inc");
 			LLVMBuildStore(builder, next, ptr);
 			break;
 		}
 		case '<': {
-			LLVMValueRef prev = LLVMBuildSub(builder, index, LLVMConstInt(i32, 1, 0), "ptr_dec");
+			LLVMValueRef prev = LLVMBuildSub(builder, index, LLVMConstInt(i32, node->count, 0), "ptr_dec");
 			LLVMBuildStore(builder, prev, ptr);
 			break;
 		}
