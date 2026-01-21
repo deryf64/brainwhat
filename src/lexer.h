@@ -1,6 +1,8 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#include <string.h>
+
 enum Token {
 	tok_eof = -1,
 	
@@ -19,40 +21,53 @@ enum Token {
 	tok_mvl = '{', // Move data left
 };
 
+typedef struct CharPosition {
+	int col;
+	int row;
+} CharPosition;
+
+CharPosition charPos = { 0, 0 };
+
+void countChar(int ch) {
+	if (ch == EOF || ch == '\r') return;
+	if (ch == '\n') {
+		charPos.col = 0;
+		charPos.row++;
+	} else {
+		charPos.col++;
+	}
+}
+
 static int gettok() {
 	static int LastChar = ' ';
 
-	while (LastChar == ' ') {
-		LastChar = getchar();
-	}
-
-	if (LastChar == '%') {
-		do {
+	for (;;) {
+		if (LastChar == ' ') {
 			LastChar = getchar();
-		} while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
+			countChar(LastChar);
+			continue;
+		}
+
+		if (LastChar == '%') {
+			do {
+				LastChar = getchar();
+				countChar(LastChar);
+			} while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
+			continue;
+		}
 		
-		if (LastChar != EOF) {
-			return gettok();
+		if (LastChar == EOF) {
+			return tok_eof;
+		}
+
+		int ThisChar = LastChar;
+		countChar(ThisChar);
+		LastChar = getchar();
+
+		if (strchr("+-><.,[]{}Z#", ThisChar)) {
+			return ThisChar;
 		}
 	}
-
-	if (LastChar == EOF) {
-		return tok_eof;
-	}
-
-	if (LastChar == '+' || LastChar == '-' ||
-	    LastChar == '>' || LastChar == '<' ||
-	    LastChar == '.' || LastChar == ',' ||
-	    LastChar == '[' || LastChar == ']' ||
-	    LastChar == '}' || LastChar == '{' ||
-	    LastChar == 'Z' || LastChar == '#') {
-		int ThisChar = LastChar;
-		LastChar = getchar();
-		return ThisChar;
-	}
-
-	LastChar = getchar();
-	return gettok();
 }
 
 extern int CurTok;
