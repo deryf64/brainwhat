@@ -8,8 +8,6 @@
 #include "parser.h"
 #include "codegen.h"
 
-int CurTok = tok_eof;
-
 LLVMValueRef create_main_function(LLVMModuleRef module, LLVMBuilderRef builder, ASTNode* root) {
 	LLVMTypeRef ret_ty = LLVMInt32Type();
 	LLVMTypeRef main_ty = LLVMFunctionType(ret_ty, NULL, 0, 0);
@@ -43,7 +41,17 @@ int main(int argc, char **argv)
 
 	init_codegen(&module, &builder);
 
+	initBracketStack();
 	ASTNode *root = parse_program();
+	if (!isBracketStackEmpty()) {
+		fprintf(stderr, "Unclosed loops:\n");
+		while (!isBracketStackEmpty()) {
+			CharPosition p = popBracketPosition();
+			fprintf(stderr, " [ on row %d, col %d\n", p.row + 1, p.col + 1);
+		}
+		exit(1);
+	}
+	freeBracketStack();
 
 	create_main_function(module, builder, root);
 

@@ -21,56 +21,26 @@ enum Token {
 	tok_mvl = '{', // Move data left
 };
 
-typedef struct CharPosition {
+typedef struct {
 	int col;
 	int row;
 } CharPosition;
 
-CharPosition charPos = { 0, 0 };
-
-void countChar(int ch) {
-	if (ch == EOF || ch == '\r') return;
-	if (ch == '\n') {
-		charPos.col = 0;
-		charPos.row++;
-	} else {
-		charPos.col++;
-	}
-}
-
-static int gettok() {
-	static int LastChar = ' ';
-
-	for (;;) {
-		if (LastChar == ' ') {
-			LastChar = getchar();
-			countChar(LastChar);
-			continue;
-		}
-
-		if (LastChar == '%') {
-			do {
-				LastChar = getchar();
-				countChar(LastChar);
-			} while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
-			continue;
-		}
-		
-		if (LastChar == EOF) {
-			return tok_eof;
-		}
-
-		int ThisChar = LastChar;
-		countChar(ThisChar);
-		LastChar = getchar();
-
-		if (strchr("+-><.,[]{}Z#", ThisChar)) {
-			return ThisChar;
-		}
-	}
-}
+typedef struct {
+	CharPosition *positions;
+	size_t size;
+	size_t capacity;
+} PositionStack;
 
 extern int CurTok;
 extern CharPosition charPos;
+extern PositionStack openBracketStack;
+
+int gettok(void);
+void initBracketStack(void);
+void pushBracketPosition(CharPosition pos);
+CharPosition popBracketPosition(void);
+int isBracketStackEmpty(void);
+void freeBracketStack(void);
 
 #endif

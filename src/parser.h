@@ -10,6 +10,7 @@ static int getNextToken() {
 
 ASTNode *parse_expression() {
 	ASTNode *node = NULL;
+	CharPosition token_start_pos = charPos;
 
 	switch (CurTok) {
 		case tok_inc: case tok_dec:
@@ -42,6 +43,7 @@ ASTNode *parse_expression() {
 
 			return node;
 		case tok_lpo:
+			pushBracketPosition(token_start_pos);
 			getNextToken();
 			node = create_node(NODE_LOOP, 0);
 
@@ -54,9 +56,12 @@ ASTNode *parse_expression() {
 
 			if (CurTok == tok_lpc) {
 				getNextToken();
+				popBracketPosition();
 			} else {
+				CharPosition open_pos = openBracketStack.positions[openBracketStack.size - 1];
+
 				fprintf(stderr, "Error: expected ']' (unclosed loop) at line %d, col %d\n",
-						charPos.row + 1, charPos.col + 1);
+						open_pos.row + 1, open_pos.col + 1);
 				exit(1);
 			}
 
