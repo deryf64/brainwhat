@@ -17,7 +17,7 @@ void pushBracketPosition(CharPosition pos) {
 		size_t new_cap = openBracketStack.capacity ? openBracketStack.capacity * 2 : 16;
 		CharPosition *new_mem = realloc(openBracketStack.positions, new_cap * sizeof(CharPosition));
 		if (!new_mem) {
-			fprintf(stderr, "Cannot allocate memory for bracket stack\n");
+			fprintf(stderr, "\e[1;31mFatal error:\e[0m Cannot allocate memory for bracket stack\n");
 			exit(1);
 		}
 		openBracketStack.positions = new_mem;
@@ -28,7 +28,7 @@ void pushBracketPosition(CharPosition pos) {
 
 CharPosition popBracketPosition(void) {
 	if (openBracketStack.size == 0) {
-		fprintf(stderr, "Internal error: stack underflow\n");
+		fprintf(stderr, "\e[1;31mInternal error:\e[0m stack underflow\n");
 		exit(1);
 	}
 	return openBracketStack.positions[--openBracketStack.size];

@@ -56,7 +56,7 @@ ASTNode *parse_expression(void) {
 			} else {
 				CharPosition open_pos = openBracketStack.positions[openBracketStack.size - 1];
 
-				fprintf(stderr, "Error: expected ']' (unclosed loop) at line %d, col %d\n",
+				fprintf(stderr, "\e[1;31mError:\e[0m expected ']' (unclosed loop) at line %d, col %d\n",
 						open_pos.row + 1, open_pos.col + 1);
 				exit(1);
 			}
@@ -79,7 +79,7 @@ ASTNode *parse_expression(void) {
 
 			return node;
 		case tok_lpc:
-			fprintf(stderr, "Error: stray closing bracket ']' at line %d, col %d\n",
+			fprintf(stderr, "\e[1;31mError:\e[0m stray closing bracket ']' at line %d, col %d\n",
 					token_start_pos.row + 1, token_start_pos.col + 1);
 			exit(1);
 
