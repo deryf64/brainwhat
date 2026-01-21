@@ -2,7 +2,7 @@ CC = clang
 CFLAGS = -O2 -Wall -Wextra $(shell llvm-config --cflags)
 LDFLAGS = $(shell llvm-config --ldflags --libs core native)
 BIN = bin/bf-llvm
-SRC = src/main.c src/ast.c src/codegen.c src/func.c src/lexer.c
+SRC = src/main.c src/ast.c src/codegen.c src/func.c src/lexer.c src/parser.c
 
 .PHONY: all clean run
 

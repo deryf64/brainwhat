@@ -17,7 +17,7 @@ void pushBracketPosition(CharPosition pos) {
 		size_t new_cap = openBracketStack.capacity ? openBracketStack.capacity * 2 : 16;
 		CharPosition *new_mem = realloc(openBracketStack.positions, new_cap * sizeof(CharPosition));
 		if (!new_mem) {
-			fprintf(stderr, "Cannot allocate memeory for bracket stack\n");
+			fprintf(stderr, "Cannot allocate memory for bracket stack\n");
 			exit(1);
 		}
 		openBracketStack.positions = new_mem;
