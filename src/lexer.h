@@ -71,5 +71,6 @@ static int gettok() {
 }
 
 extern int CurTok;
+extern CharPosition charPos;
 
 #endif

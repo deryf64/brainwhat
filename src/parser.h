@@ -55,7 +55,8 @@ ASTNode *parse_expression() {
 			if (CurTok == tok_lpc) {
 				getNextToken();
 			} else {
-				fprintf(stderr, "Error: expected ']' (unclosed loop)\n");
+				fprintf(stderr, "Error: expected ']' (unclosed loop) at line %d, col %d\n",
+						charPos.row + 1, charPos.col + 1);
 				exit(1);
 			}
 
