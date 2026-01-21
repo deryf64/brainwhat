@@ -16,7 +16,7 @@ ASTNode *parse_expression() {
 		case tok_rgt: case tok_lft:
 		case tok_ech: case tok_get:
 		case tok_mvr: case tok_mvl:
-		case tok_szr:
+		case tok_szr: case tok_fnc:
 			node = create_node(NODE_COMMAND, CurTok);
 			int current = CurTok;
 			int count = 1;
@@ -65,6 +65,7 @@ ASTNode *parse_expression() {
 				if (child->type == NODE_COMMAND) {
 					if (child->token == '+' || child->token == '-') {
 						free_ast(child);
+						free(node->loop_body.children);
 						node->type = NODE_COMMAND;
 						node->token = 'Z';
 						node->loop_body.children = NULL;

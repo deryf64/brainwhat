@@ -1,5 +1,6 @@
 #include "codegen.h"
 #include "ast.h"
+#include "func.h"
 #include <llvm-c/Core.h>
 #include <llvm-c/Target.h>
 #include <stdio.h>
@@ -114,7 +115,7 @@ void codegen(ASTNode* node, LLVMBuilderRef builder, LLVMModuleRef module) {
 				LLVMValueRef cur_cell = LLVMBuildGEP2(builder, LLVMArrayType(i8, 30000), tape, cur_indices, 2, "cur_cell");
 				LLVMValueRef val = LLVMBuildLoad2(builder, i8, cur_cell, "val");
 
-				LLVMValueRef offset = LLVMConstInt(i32, - (int64_t)node->count, 1);
+				LLVMValueRef offset = LLVMConstInt(i32, - (int32_t)node->count, 1);
 				LLVMValueRef target_idx = LLVMBuildAdd(builder, index, offset, "target_idx");
 				LLVMValueRef target_indices[2] = { LLVMConstInt(i32, 0, 0), target_idx };
 				LLVMValueRef target_cell = LLVMBuildGEP2(builder, LLVMArrayType(i8, 30000), tape, target_indices, 2, "target_cell");
@@ -124,6 +125,23 @@ void codegen(ASTNode* node, LLVMBuilderRef builder, LLVMModuleRef module) {
 				LLVMBuildStore(builder, new_target, target_cell);
 
 				LLVMBuildStore(builder, LLVMConstInt(i8, 0, 0), cur_cell);
+				break;
+			}
+			case '#': {
+				// Парсим текущую ячейку - это номер функции
+				// Если функция имеет аргументы, то далее идут ячейки:
+				//	кол-во аргуметов
+				//	размер аргументов (в байтах)
+				//	арг1
+				//	арг2
+				//	...
+				LLVMValueRef index = LLVMBuildLoad2(builder, i32, ptr, "ptr_load");
+
+				LLVMValueRef cur_indices[2] = { LLVMConstInt(i32, 0, 0), index };
+				LLVMValueRef cur_cell = LLVMBuildGEP2(builder, LLVMArrayType(i8, 30000), tape, cur_indices, 2, "cur_cell");
+
+				CallFunction(cur_cell, builder, i8);
+
 				break;
 			}
 			default:
