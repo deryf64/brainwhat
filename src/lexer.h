@@ -14,11 +14,14 @@ enum Token {
 	tok_get = ',',
 	tok_lpo = '[',
 	tok_lpc = ']',
-
-	tok_szr = 'Z', // Set Zero
-	tok_fnc = '#', // Call function
 	tok_mvr = '}', // Move data right
 	tok_mvl = '{', // Move data left
+	tok_szr = 'Z', // Set Zero
+	tok_div = 'd', // Divide
+	tok_mul = 'm', // Multiply
+	tok_sub = 's', // Subtract
+	tok_add = 'a', // Add
+	tok_sqr = 'q', // Square root
 };
 
 typedef struct {

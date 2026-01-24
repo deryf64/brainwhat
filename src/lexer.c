@@ -81,7 +81,7 @@ int gettok(void) {
 		countChar(ThisChar);
 		LastChar = getchar();
 
-		if (strchr("+-><.,[]{}Z#", ThisChar)) {
+		if (strchr("+-><.,[]{}Zdmasq", ThisChar)) {
 			return ThisChar;
 		}
 	}

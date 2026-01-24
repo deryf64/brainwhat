@@ -13,7 +13,9 @@ ASTNode *parse_expression(void) {
 		case tok_rgt: case tok_lft:
 		case tok_ech: case tok_get:
 		case tok_mvr: case tok_mvl:
-		case tok_szr: case tok_fnc:
+		case tok_szr: case tok_sqr:
+		case tok_div: case tok_mul:
+		case tok_sub: case tok_add:
 			node = create_node(NODE_COMMAND, CurTok);
 			int current = CurTok;
 			int count = 1;

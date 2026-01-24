@@ -1,9 +1,9 @@
 #include "codegen.h"
 #include "ast.h"
-#include "func.h"
 #include <llvm-c/Core.h>
 #include <llvm-c/Target.h>
 #include <stdio.h>
+#include <string.h>
 
 static LLVMValueRef get_or_create_putchar(LLVMModuleRef mod) {
 	LLVMValueRef f = LLVMGetNamedFunction(mod, "putchar");
@@ -127,21 +127,61 @@ void codegen(ASTNode* node, LLVMBuilderRef builder, LLVMModuleRef module) {
 				LLVMBuildStore(builder, LLVMConstInt(i8, 0, 0), cur_cell);
 				break;
 			}
-			case '#': {
-				// Парсим текущую ячейку - это номер функции
-				// Если функция имеет аргументы, то далее идут ячейки:
-				//	кол-во аргуметов
-				//	размер аргументов (в байтах)
-				//	арг1
-				//	арг2
-				//	...
-				LLVMValueRef index = LLVMBuildLoad2(builder, i32, ptr, "ptr_load");
+			case 'd': {
+				LLVMValueRef next_idx = LLVMBuildAdd(builder, index, LLVMConstInt(i32, 1, 0), "next_idx");
+				LLVMValueRef next_indices[2] = { LLVMConstInt(i32, 0, 0), next_idx };
+				LLVMValueRef next_cell = LLVMBuildGEP2(builder, LLVMArrayType(i8, 30000), tape, next_indices, 2, "next_cell");
+				LLVMValueRef next_val = LLVMBuildLoad2(builder, i8, next_cell, "next_val");
 
-				LLVMValueRef cur_indices[2] = { LLVMConstInt(i32, 0, 0), index };
-				LLVMValueRef cur_cell = LLVMBuildGEP2(builder, LLVMArrayType(i8, 30000), tape, cur_indices, 2, "cur_cell");
+				LLVMValueRef div_res = LLVMBuildSDiv(builder, val, next_val, "div_res");
+				LLVMBuildStore(builder, div_res, cell);
+				break;
+			}
+			case 'm': { // cur = cur * next
+				LLVMValueRef next_idx = LLVMBuildAdd(builder, index, LLVMConstInt(i32, 1, 0), "next_idx");
+				LLVMValueRef next_indices[2] = { LLVMConstInt(i32, 0, 0), next_idx };
+				LLVMValueRef next_cell = LLVMBuildGEP2(builder, LLVMArrayType(i8, 30000), tape, next_indices, 2, "next_cell");
+				LLVMValueRef next_val = LLVMBuildLoad2(builder, i8, next_cell, "next_val");
 
-				CallFunction(cur_cell, builder, i8);
+				LLVMValueRef mul_res = LLVMBuildMul(builder, val, next_val, "mul_res");
+				LLVMBuildStore(builder, mul_res, cell);
+				break;
+			}
+			case 's': { // cur = cur - next
+				LLVMValueRef next_idx = LLVMBuildAdd(builder, index, LLVMConstInt(i32, 1, 0), "next_idx");
+				LLVMValueRef next_indices[2] = { LLVMConstInt(i32, 0, 0), next_idx };
+				LLVMValueRef next_cell = LLVMBuildGEP2(builder, LLVMArrayType(i8, 30000), tape, next_indices, 2, "next_cell");
+				LLVMValueRef next_val = LLVMBuildLoad2(builder, i8, next_cell, "next_val");
 
+				LLVMValueRef sub_res = LLVMBuildSub(builder, val, next_val, "sub_res");
+				LLVMBuildStore(builder, sub_res, cell);
+				break;
+			}
+			case 'a': { // cur = cur + next
+				LLVMValueRef next_idx = LLVMBuildAdd(builder, index, LLVMConstInt(i32, 1, 0), "next_idx");
+				LLVMValueRef next_indices[2] = { LLVMConstInt(i32, 0, 0), next_idx };
+				LLVMValueRef next_cell = LLVMBuildGEP2(builder, LLVMArrayType(i8, 30000), tape, next_indices, 2, "next_cell");
+				LLVMValueRef next_val = LLVMBuildLoad2(builder, i8, next_cell, "next_val");
+
+				LLVMValueRef add_res = LLVMBuildAdd(builder, val, next_val, "add_res");
+				LLVMBuildStore(builder, add_res, cell);
+				break;
+			}
+			case 'q': {
+				LLVMValueRef float_val = LLVMBuildUIToFP(builder, val, LLVMDoubleType(), "float_val");
+
+				const char *intrinsic_name = "llvm.sqrt";
+				unsigned int id = LLVMLookupIntrinsicID(intrinsic_name, strlen(intrinsic_name));
+
+				LLVMTypeRef param_types[] = { LLVMDoubleType() };
+				LLVMValueRef sqrt_fn = LLVMGetIntrinsicDeclaration(module, id, param_types, 1);
+
+				LLVMValueRef args[] = { float_val };
+				LLVMTypeRef ft = LLVMFunctionType(LLVMDoubleType(), param_types, 1, 0);
+				LLVMValueRef sqrt_res = LLVMBuildCall2(builder, ft, sqrt_fn, args, 1, "sqrt_res");
+
+				LLVMValueRef final_val = LLVMBuildFPToUI(builder, sqrt_res, i8, "final_val");
+				LLVMBuildStore(builder, final_val, cell);
 				break;
 			}
 			default:
