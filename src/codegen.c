@@ -2,7 +2,6 @@
 #include "ast.h"
 #include <llvm-c/Core.h>
 #include <llvm-c/Target.h>
-#include <stdio.h>
 #include <string.h>
 
 static LLVMValueRef get_or_create_putchar(LLVMModuleRef mod) {
