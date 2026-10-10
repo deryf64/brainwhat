@@ -8,7 +8,7 @@
 #include "parser.h"
 #include "codegen.h"
 
-LLVMValueRef create_main_function(LLVMModuleRef module, LLVMBuilderRef builder, ASTNode* root) {
+LLVMValueRef create_main_function(LLVMModuleRef module, LLVMBuilderRef builder, const ASTNode* root) {
 	LLVMTypeRef ret_ty = LLVMInt32Type();
 	LLVMTypeRef main_ty = LLVMFunctionType(ret_ty, NULL, 0, 0);
 	LLVMValueRef main_fn = LLVMAddFunction(module, "main", main_ty);
